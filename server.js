@@ -8,6 +8,8 @@ const port = process.env.PORT || 3000;
 // Create a new Pool instance for connecting to the database
 const pool = new Pool({ connectionString });
 
+app.use(express.json());
+
 //basic get request
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -25,16 +27,26 @@ app.get("/api/pitching-rotation", (req, res) => {
   });
 });
 
-// app.post("/api/pitching-rotation", (req, res) => {
-//   // Destructure the player data from the request body
-//   const { player_name, throws, earned_run_average, hall_of_fame } = req.body;
+app.post("/api/pitching-rotation", (req, res) => {
+  const { player_name, throws, earned_run_average, hall_of_fame } = req.body;
+  const query = {
+    text: "INSERT INTO pitching_rotation (player_name, throws, earned_run_average, hall_of_fame) VALUES ($1, $2, $3, $4)",
+    values: [player_name, throws, earned_run_average, hall_of_fame],
+  };
+  pool.query(query, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Error adding record");
+    } else {
+      res.send("Record added successfully");
+    }
+  });
+});
 
-//   // Define an SQL query with parameter placeholders
-//   const query = {
-//     text: "INSERT INTO pitching_rotation (player_name, throws, earned_run_average, hall_of_fame) VALUES ($1, $2, $3, $4)",
-//     values: [player_name, throws, earned_run_average, hall_of_fame],
-//   };
-
+// Start the server
+app.listen(port, () => {
+  console.log("Server is listening on port 3000...");
+});
 //   // Use the Pool instance to execute the query
 //   pool.query(query, (err, result) => {
 //     if (err) {
@@ -48,11 +60,6 @@ app.get("/api/pitching-rotation", (req, res) => {
 //     }
 //   });
 // });
-
-// Start the server
-app.listen(port, () => {
-  console.log("Server is listening on port 3000...");
-});
 
 //use pool instance to execute queries against the database
 // pool.query('SELECT * FROM pitching_rotation', (err, res) => {
