@@ -2,15 +2,11 @@ const express = require("express");
 const app = express();
 const { Pool } = require("pg");
 const dotenv = require("dotenv").config();
+const connectionString = process.env.DATABASE_URL;
+const port = process.env.PORT || 3000;
 
 // Create a new Pool instance for connecting to the database
-const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
-});
+const pool = new Pool({ connectionString });
 
 //basic get request
 app.get("/", (req, res) => {
@@ -54,7 +50,7 @@ app.get("/api/pitching-rotation", (req, res) => {
 // });
 
 // Start the server
-app.listen(3000, () => {
+app.listen(port, () => {
   console.log("Server is listening on port 3000...");
 });
 
